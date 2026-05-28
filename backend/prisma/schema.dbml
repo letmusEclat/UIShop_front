@@ -1,0 +1,87 @@
+// UIShop — Database Schema
+// Universidad Industrial de Santander · 2026-I
+// Visualizar en: https://dbdiagram.io
+
+Project UIShop {
+  database_type: 'PostgreSQL'
+  Note: 'Marketplace universitario UIS'
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+Enum role {
+  BUYER
+  SELLER
+}
+
+// ─────────────────────────────────────────────
+// TABLAS
+// ─────────────────────────────────────────────
+
+Table users {
+  id           int          [pk, increment]
+  email        varchar      [unique, not null]
+  passwordHash varchar      [not null]
+  fullName     varchar      [not null]
+  role         role         [not null, default: 'BUYER']
+  avatarUrl    varchar      [null]
+  isVerified   boolean      [not null, default: false]
+  createdAt    timestamp    [not null, default: `now()`]
+
+  Note: 'Compradores y vendedores de la plataforma'
+}
+
+Table study_centers {
+  id          int       [pk, increment]
+  name        varchar   [not null]
+  description text      [null]
+  logoUrl     varchar   [null]
+  location    varchar   [null]
+
+  Note: 'Centros académicos de la UIS: CEIS, CEIQ, CEIM'
+}
+
+Table products {
+  id            int          [pk, increment]
+  title         varchar      [not null]
+  description   text         [not null]
+  price         decimal(10,2)[not null]
+  imageUrl      varchar      [null]
+  tags          varchar[]    [not null, note: 'Array de etiquetas: útiles, ropa, laboratorio…']
+  isActive      boolean      [not null, default: true]
+  createdAt     timestamp    [not null, default: `now()`]
+  sellerId      int          [not null, ref: > users.id]
+  studyCenterId int          [null,     ref: > study_centers.id]
+
+  Note: 'Productos y servicios publicados por vendedores'
+}
+
+Table wishlist {
+  id        int       [pk, increment]
+  userId    int       [not null, ref: > users.id]
+  productId int       [not null, ref: > products.id]
+  createdAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (userId, productId) [unique, name: 'wishlist_user_product_unique']
+  }
+
+  Note: 'Favoritos del comprador. Un usuario no puede guardar el mismo producto dos veces'
+}
+
+Table ratings {
+  id        int       [pk, increment]
+  score     int       [not null, note: '1 a 5 estrellas']
+  comment   text      [null]
+  createdAt timestamp [not null, default: `now()`]
+  userId    int       [not null, ref: > users.id]
+  productId int       [not null, ref: > products.id]
+
+  indexes {
+    (userId, productId) [unique, name: 'ratings_user_product_unique']
+  }
+
+  Note: 'Un usuario solo puede calificar una vez cada producto'
+}

@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// USUARIOS
+// ─────────────────────────────────────────────
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         Role     @default(BUYER)
+  avatarUrl    String?
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  products     Product[]
+  wishlist     Wishlist[]
+  ratingsGiven Rating[]
+}
+
+enum Role {
+  BUYER
+  SELLER
+}
+
+// ─────────────────────────────────────────────
+// CENTROS DE ESTUDIO
+// ─────────────────────────────────────────────
+model StudyCenter {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  logoUrl     String?
+  location    String?
+
+  products Product[]
+}
+
+// ─────────────────────────────────────────────
+// PRODUCTOS
+// ─────────────────────────────────────────────
+model Product {
+  id            Int          @id @default(autoincrement())
+  title         String
+  description   String
+  price         Decimal      @db.Decimal(10, 2)
+  imageUrl      String?
+  tags          String[]
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+
+  seller        User         @relation(fields: [sellerId], references: [id])
+  sellerId      Int
+
+  studyCenter   StudyCenter? @relation(fields: [studyCenterId], references: [id])
+  studyCenterId Int?
+
+  wishlist Wishlist[]
+  ratings  Rating[]
+}
+
+// ─────────────────────────────────────────────
+// WISHLIST (corazón ❤️)
+// ─────────────────────────────────────────────
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+// ─────────────────────────────────────────────
+// VALORACIONES
+// ─────────────────────────────────────────────
+model Rating {
+  id        Int      @id @default(autoincrement())
+  score     Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  userId    Int
+  productId Int
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}

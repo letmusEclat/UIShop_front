@@ -1,38 +1,24 @@
-import { useState } from 'react'
-import { Container, Title, Button, Stack, Text, Group } from '@mantine/core'
-import { FaShoppingCart, FaReact } from 'react-icons/fa'
-import './App.css'
+import { createBrowserRouter, RouterProvider, redirect } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import StudyCentersPage from './pages/StudyCentersPage';
+import StudyCenterDetailPage from './pages/StudyCenterDetailPage';
+import WishlistPage from './pages/WishlistPage';
+import ProfilePage from './pages/ProfilePage';
+import LoginPage from './pages/LoginPage';
+import { isLoggedIn } from './services/auth';
 
-function App() {
-  const [count, setCount] = useState(0)
+const requireAuth = () => (isLoggedIn() ? null : redirect('/login'));
 
-  return (
-    <Container size="md" py="xl">
-      <Stack align="center" gap="lg">
-        <Group gap="md">
-          <FaReact size={48} color="#61dafb" />
-          <FaShoppingCart size={48} color="#7048e8" />
-        </Group>
+const router = createBrowserRouter([
+  { path: '/', loader: () => redirect('/home') },
+  { path: '/login', element: <LoginPage /> },
+  { path: '/home', element: <HomePage /> },
+  { path: '/study-centers', element: <StudyCentersPage /> },
+  { path: '/study-centers/:id', element: <StudyCenterDetailPage /> },
+  { path: '/wishlist', element: <WishlistPage />, loader: requireAuth },
+  { path: '/profile', element: <ProfilePage />, loader: requireAuth },
+]);
 
-        <Title order={1}>UIShop</Title>
-
-        <Text size="lg" c="dimmed">
-          Visual Resources E-commerce Platform
-        </Text>
-
-        <Button
-          size="lg"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </Button>
-
-        <Text size="sm" c="dimmed">
-          Edit <code>src/App.tsx</code> to get started
-        </Text>
-      </Stack>
-    </Container>
-  )
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App
