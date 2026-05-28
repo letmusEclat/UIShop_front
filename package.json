@@ -1,0 +1,22 @@
+{
+  "name": "uishop-monorepo",
+  "version": "1.0.0",
+  "description": "UIShop Full-stack Application - Visual Resources E-commerce Platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start:frontend": "npm run preview --workspace=frontend",
+    "start:backend": "npm run start --workspace=backend"
+  },
+  "keywords": ["ecommerce", "ui", "visual-resources"],
+  "author": "",
+  "license": "ISC"
+}
